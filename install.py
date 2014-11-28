@@ -13,7 +13,7 @@ class WeewxGraphiteInstaller(ExtensionInstaller):
 
     def __init__(self):
         super(WeewxGraphiteInstaller, self).__init__(
-            version='1.0.0',
+            version='0.0.1',
             name='graphite',
             description='Upload weather data to graphite.',
             author='Greg Albrecht',
