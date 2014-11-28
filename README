@@ -1,40 +1,21 @@
-idokep - weewx extension that sends data to www.idokep.hu
-Copyright 2014 Lorant Kurthy
+weewx_graphite - weewx extension that sends data to Graphite
+
 
 Installation instructions:
-0) Download the release from github repo https://github.com/lorantkurthy/weewx-idokep to ~/Downloads/weewx-idokep-0.1.tar.gz
 
-You have two choices:
+1. Download from Github: https://github.com/ampledata/weewx_graphite
+2. Install with weewx's Extension Manager: `./setup.py --extension --install weewx_graphite.tar.gz`
+3. Update weewx.conf:
 
-Install with weewx's extension manager:
-
-1) in weewx directory run: ./setup.py --extension --install ~/Downloads/weewx-idokep-0.1.tar.gz
-
-OR
-
-Install from downloaded tarball:
-
-1) expand the tarball:
-
-cd /var/tmp
-tar xvfz ~/Downloads/weewx-idokep-0.1.tar.gz
-
-2) copy files to the weewx user directory:
-
-cp /var/tmp/weewx-idokep-0.1/bin/user/idokep.py /home/weewx/bin/user
-
-3) modify weewx.conf:
-
+```
 [StdRESTful]
-    [[IDOKEP]]
-        username = your IDOKEP username
-        password = your IDOKEP password
+    [[Graphite]]
+        host = Graphite's Carbon Host.
+        port = Graphite's Carbon Port.
 
 [Engines]
     [[WxEngine]]
-        restful_services = ... , user.idokep.IDOKEP
+        restful_services = ... , user.graphite.Graphite
+```
 
-4) restart weewx
-
-sudo /etc/init.d/weewx stop
-sudo /etc/init.d/weewx start
+4. Restart weewx.

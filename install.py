@@ -1,24 +1,32 @@
-# installer for IDOKEP
-# Copyright 2014 Lorant Kurthy
+# installer for weewx_graphite
+# Copyright 2014
+
 
 from setup import ExtensionInstaller
 
-def loader():
-    return IDOKEPInstaller()
 
-class IDOKEPInstaller(ExtensionInstaller):
+def loader():
+    return WeewxGraphiteInstaller()
+
+
+class WeewxGraphiteInstaller(ExtensionInstaller):
+
     def __init__(self):
-        super(IDOKEPInstaller, self).__init__(
-            version="0.1",
-            name='idokep',
-            description='Upload weather data to www.idokep.hu.',
-            author="Lorant Kurthy",
-            author_email="kurthyl@gmail.com",
-            restful_services='user.idokep.IDOKEP',
+        super(WeewxGraphiteInstaller, self).__init__(
+            version='1.0.0',
+            name='graphite',
+            description='Upload weather data to graphite.',
+            author='Greg Albrecht',
+            author_email='gba@onbeep.com',
+            restful_services='user.graphite.Graphite',
             config={
                 'StdRESTful': {
-                    'IDOKEP': {
-                        'username': 'INSERT_USERNAME_HERE',
-                        'password': 'INSERT_PASSWORD_HERE'}}},
-            files=[('bin/user', ['bin/user/idokep.py'])]
-            )
+                    'Graphite': {
+                        'host': 'CARBON_HOST',
+                        'port': 'CARBON_PORT',
+                        'prefix': 'QUEUE_PREFIX'
+                    }
+                }
+            },
+            files=[('bin/user', ['bin/user/graphite.py'])]
+        )
