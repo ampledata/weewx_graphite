@@ -13,7 +13,7 @@ class WeewxGraphiteInstaller(ExtensionInstaller):
 
     def __init__(self):
         super(WeewxGraphiteInstaller, self).__init__(
-            version='0.0.2',
+            version='0.0.3',
             name='graphite',
             description='Upload weather data to graphite.',
             author='Greg Albrecht',
@@ -23,8 +23,7 @@ class WeewxGraphiteInstaller(ExtensionInstaller):
                 'StdRESTful': {
                     'Graphite': {
                         'host': 'CARBON_HOST',
-                        'port': 'CARBON_PORT',
-                        'prefix': 'QUEUE_PREFIX'
+                        'port': 'CARBON_PORT'
                     }
                 }
             },
