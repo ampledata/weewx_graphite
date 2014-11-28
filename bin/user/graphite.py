@@ -16,6 +16,7 @@
 
 
 import Queue
+import socket
 import sys
 import syslog
 import time
@@ -58,8 +59,10 @@ class Graphite(weewx.restx.StdRESTful):
             site_dict['port']
             site_dict['prefix']
         except KeyError, e:
-            syslog.syslog(syslog.LOG_DEBUG, "restx: Graphite: "
-                          "Data will not be posted: Missing option %s" % e)
+            syslog.syslog(
+                syslog.LOG_DEBUG, "restx: Graphite: "
+                "Data will not be posted: Missing option %s" % e
+            )
             return
 
         site_dict.setdefault(
@@ -104,11 +107,8 @@ class GraphiteThread(weewx.restx.RESTThread):
 
         """Initialize an instances of GraphiteThread.
 
-        Required parameters:
-
-        host: Carbon Host
-        port: Carbon Port
-
+        :param host: Graphite Carbon Host.
+        :param port: Graphite Carbon Port.
 
         Optional parameters:
 
@@ -158,63 +158,27 @@ class GraphiteThread(weewx.restx.RESTThread):
         self.prefix = prefix
         self.skip_upload = to_bool(skip_upload)
 
+    def collect_metric(self, name, value, timestamp):
+        if self.prefix:
+            metric_name = '.'.join([self.prefix, name])
+        else:
+            metric_name = name
+
+        print locals()
+
+        sock = socket.socket()
+        sock.connect((self.host, self.port))
+        sock.send("%s %d %d\n" % (metric_name, value, timestamp))
+        sock.close()
+
     def get_record(self, record, archive):
         # Get the record from my superclass
         return super(GraphiteThread, self).get_record(record, archive)
 
     def process_record(self, record, archive):
-        r = self.get_record(record, archive)
-        url = self.get_url(r)
         if self.skip_upload:
-            syslog.syslog(syslog.LOG_DEBUG, "restx: Graphite: skipping upload")
-            return
-        req = urllib2.Request(url)
-        req.add_header("User-Agent", "weewx/%s" % weewx.__version__)
-        self.post_with_retries(req)
-
-    def check_response(self, response):
-        error = True
-        for line in response:
-            if line.find('sz!'):
-                error=False
-
-        if error:
-            raise weewx.restx.FailedPost(
-                "server returned '%s'" % ', '.join(response))
-
-    def get_url(self, in_record):
-
-        # Convert to units required by Graphite
-        record = weewx.units.to_METRICWX(in_record)
-
-        # assemble an array of values in the proper order
-        values = ["{0}={1}".format("user",self.username)]
-        values.append("{0}={1}".format("pass",self.password))
-        time_tt = time.localtime(record['dateTime'])
-        values.append("{0}={1}".format("ev",time.strftime("%Y", time_tt)))
-        values.append("{0}={1}".format("ho",time.strftime("%m", time_tt)))
-        values.append("{0}={1}".format("nap",time.strftime("%d", time_tt)))
-        values.append("{0}={1}".format("ora",time.strftime("%H", time_tt)))
-        values.append("{0}={1}".format("perc",time.strftime("%M", time_tt)))
-        values.append("{0}={1}".format("mp",time.strftime("%S", time_tt)))
-        values.append("{0}={1}".format("hom",self._format(record, 'outTemp'))) # C
-        values.append("{0}={1}".format("rh",self._format(record, 'outHumidity'))) # %
-        values.append("{0}={1}".format("szelirany",self._format(record, 'windDir')))
-        values.append("{0}={1}".format("szelero",self._format(record, 'windSpeed'))) # m/s
-        values.append("{0}={1}".format("szellokes",self._format(record, 'windGust'))) # m/s
-        values.append("{0}={1}".format("p",self._format(record, 'barometer'))) # hPa
-        values.append("{0}={1}".format("csap",self._format(record, 'rain24'))) # mm
-        values.append("{0}={1}".format("csap1h",self._format(record, 'hourRain'))) # mm
-        values.append("{0}={1}".format("tipus",self.station_type))
-
-        valstr = '&'.join(values)
-        url = self.server_url + '?' + valstr
-        syslog.syslog(syslog.LOG_DEBUG, 'restx: Graphite: url: %s' % url)
-        return url
-
-    def _format(self, record, label):
-        if record.has_key(label) and record[label] is not None:
-            if self._FORMATS.has_key(label):
-                return self._FORMATS[label] % record[label]
-            return str(record[label])
-        return ''
+            syslog.syslog(
+                syslog.LOG_DEBUG, "restx: Graphite: skipping upload")
+        else:
+            _record = self.get_record(record, archive)
+            print locals()
