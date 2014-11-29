@@ -1,54 +1,24 @@
 #!/usr/bin/env python
 
-# Upload data to Graphite
-#
-# To enable this module, put this file in bin/user, add the following to
-# weewx.conf, then restart weewx.
-#
-# [[Graphite]]
-#     host = Carbon host
-#     port = Carbon port
-#     prefix = Queue prefix
-#     log_success = True
-#     log_failure = True
-#     skip_upload = False
-#
+"""
+Sends weewx weather records to Graphite using the Carbon/TCP protocol.
+"""
 
 
 import Queue
 import socket
 import sys
 import syslog
-import time
-import urllib
-import urllib2
 
 import weewx
 import weewx.restx
-import weewx.units
 
 from weeutil.weeutil import to_bool
 
 
 class Graphite(weewx.restx.StdRESTful):
-    """Upload data to Graphite
-
-    PARAMETERS:
-        host=host
-        port=port
-        hom=$v{To} // Temperature outdoor (%.1f C)
-        rh=$v{RHo} // Relative humidity outdoor (%d C)
-        szelirany=$v{DIR0} // Wind direction (%.0f)
-        szelero=$v{WS} // (%.1f m/s)
-        p=$v{RP} // Relative pressure (%.1f hPa)
-        csap=$v{R24h} // Rain 24h (%.1f mm)
-        csap1h=$v{R1h} //Rain 1h (%.1f mm)
-        ev=$year
-        ho=$mon
-        nap=$mday
-        ora=$hour
-        perc=$min
-        mp=$sec
+    """
+    Sends weewx weather records to Graphite using the Carbon/TCP protocol.
     """
 
     def __init__(self, engine, config_dict):
@@ -57,7 +27,6 @@ class Graphite(weewx.restx.StdRESTful):
             site_dict = weewx.restx.get_dict(config_dict, 'Graphite')
             site_dict['host']
             site_dict['port']
-            site_dict['prefix']
         except KeyError, e:
             syslog.syslog(
                 syslog.LOG_DEBUG, "restx: Graphite: "
@@ -77,7 +46,8 @@ class Graphite(weewx.restx.StdRESTful):
 
         syslog.syslog(
             syslog.LOG_INFO,
-            "restx: Graphite: Data will be uploaded for user %s" % site_dict['username']
+            "restx: Graphite: Data will be sent to host %s:%s" %
+            (site_dict['host'], site_dict['port'])
         )
 
     def new_archive_record(self, event):
@@ -88,19 +58,10 @@ class GraphiteThread(weewx.restx.RESTThread):
 
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = '2003'
-
-    _FORMATS = {
-        'barometer': '%.1f',
-        'outTemp': '%.1f',
-        'outHumidity': '%.0f',
-        'windSpeed': '%.1f',
-        'windDir': '%.0f',
-        'hourRain': '%.2f',
-        'dayRain': '%.2f'
-    }
+    DEFAULT_PREFIX = 'weewx'
 
     def __init__(self, queue, database_dict,
-                  host=DEFAULT_HOST, port=DEFAULT_PORT, prefix=None,
+                  host=DEFAULT_HOST, port=DEFAULT_PORT, prefix=DEFAULT_PREFIX,
                   skip_upload=False, post_interval=300, max_backlog=sys.maxint,
                   stale=None, log_success=True, log_failure=True,
                   timeout=60, max_tries=3, retry_wait=5):
@@ -109,6 +70,7 @@ class GraphiteThread(weewx.restx.RESTThread):
 
         :param host: Graphite Carbon Host.
         :param port: Graphite Carbon Port.
+        :param prefix: Graphite Queue Prefix.
 
         Optional parameters:
 
@@ -164,7 +126,9 @@ class GraphiteThread(weewx.restx.RESTThread):
         else:
             metric_name = name
 
-        print locals()
+        syslog.syslog(
+            syslog.LOG_DEBUG, "restx: Graphite: %s" % locals()
+        )
 
         sock = socket.socket()
         sock.connect((self.host, self.port))
@@ -178,7 +142,40 @@ class GraphiteThread(weewx.restx.RESTThread):
     def process_record(self, record, archive):
         if self.skip_upload:
             syslog.syslog(
-                syslog.LOG_DEBUG, "restx: Graphite: skipping upload")
+                syslog.LOG_DEBUG,
+                "restx: Graphite: skip_upload=True, skipping upload"
+            )
         else:
-            _record = self.get_record(record, archive)
-            print locals()
+            for k,v in record.iteritems():
+                self.collect_metric(k, v, record['dateTime'])
+
+
+#
+# Record format:
+#
+# {
+#   'daily_rain': 0.0,
+#   'wind_average': 3.5007240370967794,
+#   'outHumidity': 83.62903225806451,
+#   'heatindex': 61.59999999999994,
+#   'day_of_year': 36.0,
+#   'inTemp': 61.59999999999994,
+#   'windGustDir': 200.470488,
+#   'barometer': 30.238869061178168,
+#   'windchill': 61.59999999999994,
+#   'dewpoint': 56.59074077611711,
+#   'rain': 0.0,
+#   'pressure': 30.076167509542763,
+#   'long_term_rain': 1.900000000000002,
+#   'minute_of_day': 1348.0,
+#   'altimeter': 30.230564691725238,
+#   'usUnits': 1,
+#   'interval': 5,
+#   'dateTime': 1417218600.0,
+#   'windDir': 187.7616636785259,
+#   'outTemp': 61.59999999999994,
+#   'windSpeed': 3.804394058064512,
+#   'inHumidity': 83.62903225806451,
+#   'windGust': 6.21371
+# }
+#
