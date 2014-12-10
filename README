@@ -1,5 +1,4 @@
-weewx_graphite - weewx extension that sends data to Graphite
-
+weewx_graphite - WeeWX Extension for sending weather data to Graphite.
 
 Installation instructions:
 
