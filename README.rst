@@ -1,6 +1,8 @@
 weewx\_graphite - WeeWX Extension for sending weather data to Graphite.
 =======================================================================
 
+### NB: This extension is currently only supported in WeeWX 2.x, it does not yet work under WeeWx 3.x
+
 Installation
 ------------
 
