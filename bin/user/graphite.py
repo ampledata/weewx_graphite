@@ -48,8 +48,7 @@ import syslog
 
 import weewx
 import weewx.restx
-
-from weeutil.weeutil import to_bool
+import weewx.weeutil
 
 
 class Graphite(weewx.restx.StdRESTful):
@@ -60,7 +59,7 @@ class Graphite(weewx.restx.StdRESTful):
     def __init__(self, engine, config_dict):
         super(Graphite, self).__init__(engine, config_dict)
         try:
-            _graphite_dict = accumulateLeaves(
+            _graphite_dict = weewx.weeutil.accumulateLeaves(
                 config_dict['StdRESTful']['Graphite'], max_level=1)
         except KeyError as exc:
             syslog.syslog(
@@ -146,7 +145,7 @@ class GraphiteThread(weewx.restx.RESTThread):
         self.host = host
         self.port = port
         self.prefix = prefix
-        self.skip_upload = to_bool(skip_upload)
+        self.skip_upload = weewx.weeutil.to_bool(skip_upload)
 
     def collect_metric(self, name, value, timestamp):
         if self.prefix:
