@@ -48,7 +48,7 @@ import syslog
 
 import weewx
 import weewx.restx
-import weewx.weeutil
+import weeutil.weeutil
 
 
 class Graphite(weewx.restx.StdRESTful):
