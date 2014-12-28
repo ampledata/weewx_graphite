@@ -9,7 +9,7 @@ Installation
 1. Download tarball from Github:
     ``wget https://github.com/ampledata/weewx_graphite/archive/master.tar.gz``
 2. Install with WeeWX's Extension Manager:
-    ``setup.py --extension --install master.tar.gz``
+    ``wee_setup install --extension  master.tar.gz``
 3. Update **weewx.conf** to point to your Graphite **host** and **port** and add ``user.graphite.Grahite`` to your **restful_services**::
 
       [StdRESTful]

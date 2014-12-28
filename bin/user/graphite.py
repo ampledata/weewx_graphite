@@ -60,7 +60,8 @@ class Graphite(weewx.restx.StdRESTful):
     def __init__(self, engine, config_dict):
         super(Graphite, self).__init__(engine, config_dict)
         try:
-            site_dict = weewx.restx.get_dict(config_dict, 'Graphite')
+            _graphite_dict = accumulateLeaves(
+                config_dict['StdRESTful']['Graphite'], max_level=1)
         except KeyError as exc:
             syslog.syslog(
                 syslog.LOG_DEBUG, "restx: Graphite: "
@@ -68,20 +69,25 @@ class Graphite(weewx.restx.StdRESTful):
             )
             return
 
-        archive_db = config_dict['StdArchive']['archive_database']
-
-        site_dict.setdefault(
-            'database_dict', config_dict['Databases'][archive_db])
+        _manager_dict = weewx.manager.get_manager_dict(
+            config_dict['DataBindings'],
+            config_dict['Databases'],
+            'wx_binding'
+        )
 
         self.archive_queue = Queue.Queue()
-        self.archive_thread = GraphiteThread(self.archive_queue, **site_dict)
+        self.archive_thread = GraphiteThread(
+            self.archive_queue,
+            _manager_dict,
+             **_graphite_dict
+        )
         self.archive_thread.start()
         self.bind(weewx.NEW_ARCHIVE_RECORD, self.new_archive_record)
 
         syslog.syslog(
             syslog.LOG_INFO,
             "restx: Graphite: Data will be sent to host %s:%s" %
-            (site_dict['host'], site_dict['port'])
+            (_graphite_dict['host'], _graphite_dict['port'])
         )
 
     def new_archive_record(self, event):
@@ -102,7 +108,7 @@ class GraphiteThread(weewx.restx.RESTThread):
     DEFAULT_MAX_TRIES = 3
     DEFAULT_RETRY_WAIT = 5
 
-    def __init__(self, queue, database_dict,
+    def __init__(self, queue, manager_dict,
                  host=DEFAULT_HOST, port=DEFAULT_PORT, prefix=DEFAULT_PREFIX,
                  skip_upload=False, post_interval=DEFAULT_POST_INTERVAL,
                  max_backlog=sys.maxint, stale=None, log_success=True,
@@ -126,7 +132,7 @@ class GraphiteThread(weewx.restx.RESTThread):
         super(GraphiteThread, self).__init__(
             queue,
             protocol_name='Graphite',
-            database_dict=database_dict,
+            manager_dict=manager_dict,
             post_interval=post_interval,
             max_backlog=max_backlog,
             stale=stale,
@@ -158,8 +164,8 @@ class GraphiteThread(weewx.restx.RESTThread):
         sock.send("%s %f %d\n" % (metric_name, _value, timestamp))
         sock.close()
 
-    def process_record(self, record, archive):
-        _ = archive
+    def process_record(self, record, dbmanager):
+        _ = dbmanager
 
         if self.skip_upload:
             syslog.syslog(
