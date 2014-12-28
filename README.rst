@@ -1,15 +1,24 @@
 weewx\_graphite - WeeWX Extension for sending weather data to Graphite.
 =======================================================================
 
-### NB: This extension is currently only supported in WeeWX 2.x, it does not yet work under WeeWx 3.x
+Note
+----
+
+There are two versions of this Extension:
+
+1. weewx_graphite version 1.x for WeeWX 2.7.x: https://github.com/ampledata/weewx_graphite/tree/compat27
+2. weewx_graphite version 2.x for WeeWX 3.0.x: https://github.com/ampledata/weewx_graphite/
+
+This is version 1.x, compatible with WeeWX 2.7.x.
+
 
 Installation
 ------------
 
 1. Download tarball from Github:
-    ``wget https://github.com/ampledata/weewx_graphite/archive/master.tar.gz``
+    ``wget https://github.com/ampledata/weewx_graphite/archive/compat27.tar.gz``
 2. Install with WeeWX's Extension Manager:
-    ``setup.py --extension --install master.tar.gz``
+    ``setup.py --extension --install compat27.tar.gz``
 3. Update **weewx.conf** to point to your Graphite **host** and **port** and add ``user.graphite.Grahite`` to your **restful_services**::
 
       [StdRESTful]

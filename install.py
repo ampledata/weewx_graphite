@@ -9,7 +9,7 @@ Source:: https://github.com/ampledata/weewx_graphite
 
 
 __title__ = 'graphite'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __author__ = 'Greg Albrecht <gba@onbeep.com>'
 __license__ = 'Apache License, Version 2.0'
 __copyright__ = 'Copyright 2014 OnBeep, Inc.'
