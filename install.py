@@ -9,10 +9,10 @@ Source:: https://github.com/ampledata/weewx_graphite
 
 
 __title__ = 'graphite'
-__version__ = '2.0.0'
-__author__ = 'Greg Albrecht <gba@onbeep.com>'
+__version__ = '2.1.0'
+__author__ = 'Greg Albrecht W2GMD <oss@undef.net>'
 __license__ = 'Apache License, Version 2.0'
-__copyright__ = 'Copyright 2014 OnBeep, Inc.'
+__copyright__ = 'Copyright 2016 Orion Labs, Inc.'
 
 
 import setup
@@ -31,8 +31,8 @@ class WeewxGraphiteInstaller(setup.ExtensionInstaller):
             version=__version__,
             name=__title__,
             description='Send weather data to graphite.',
-            author='Greg Albrecht',
-            author_email='gba@onbeep.com',
+            author='Greg Albrecht W2GMD',
+            author_email='oss@undef.net',
             restful_services='user.graphite.Graphite',
             config={
                 'StdRESTful': {
