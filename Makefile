@@ -1,8 +1,8 @@
 # Makefile for WeeWX Graphite Extension.
 #
 # Source:: https://github.com/ampledata/weewx_graphite
-# Author:: Greg Albrecht <gba@onbeep.com>
-# Copyright:: Copyright 2014 OnBeep, Inc.
+# Author:: Greg Albrecht W2GMD <oss@undef.net>
+# Copyright:: Copyright 2016 Orion Labs, Inc.
 # License:: Apache License, Version 2.0
 #
 

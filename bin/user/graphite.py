@@ -36,9 +36,9 @@ Reference WeeWX Record format:
 """
 
 
-__author__ = 'Greg Albrecht <gba@onbeep.com>'
+__author__ = 'Greg Albrecht W2GMD <oss@undef.net>'
 __license__ = 'Apache License, Version 2.0'
-__copyright__ = 'Copyright 2014 OnBeep, Inc.'
+__copyright__ = 'Copyright 2016 Orion Labs, Inc.'
 
 
 import Queue
